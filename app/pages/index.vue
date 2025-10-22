@@ -8,8 +8,8 @@ definePageMeta({
 </script>
 
 <template>
-  <UContainer as="main" class="flex flex-1 flex-col gap-24 pt-32">
+  <UMain class="flex flex-1 flex-col gap-24 pt-32">
     <HomeIntro />
     <HomeSocialLinks />
-  </UContainer>
+  </UMain>
 </template>

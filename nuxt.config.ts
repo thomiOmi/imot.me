@@ -13,8 +13,11 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     // '@nuxtjs/i18n',
   ],
-  routeRules: {
-    '/': { prerender: true },
+  nitro: {
+    prerender: {
+      routes: ['/'],
+      crawlLinks: true,
+    },
   },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
@@ -28,10 +31,8 @@ export default defineNuxtConfig({
         lang: 'en',
       },
       meta: [
-        {
-          name: 'description',
-          content: 'My personal website',
-        },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'My personal website' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },

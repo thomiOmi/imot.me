@@ -35,13 +35,15 @@ useHead({
   <NuxtLoadingIndicator color="#14b8a6" />
 
   <UApp>
-    <div class="flex min-h-dvh flex-col">
+    <SkyBg />
+
+    <UContainer class="bg-default border-default relative flex min-h-dvh flex-col sm:border-x">
       <AppNavbar />
 
       <NuxtPage />
 
       <AppFooter />
-    </div>
+    </UContainer>
   </UApp>
 </template>
 
