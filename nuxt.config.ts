@@ -24,6 +24,9 @@ export default defineNuxtConfig({
         separator: '·',
         siteName: 'Thomi Syauqi',
       },
+      htmlAttrs: {
+        lang: 'en',
+      },
       meta: [
         {
           name: 'description',
@@ -54,11 +57,6 @@ export default defineNuxtConfig({
         provider: 'google',
       },
     ],
-  },
-  vue: {
-    compilerOptions: {
-      isCustomElement: (tag) => tag === 'iconify-icon',
-    },
   },
   ui: {
     fonts: false,
