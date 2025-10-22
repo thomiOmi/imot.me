@@ -5,7 +5,7 @@ const links = [
     url: 'https://github.com/thomiOmi',
     icon: 'lucide:github',
   },
-]
+];
 </script>
 
 <template>

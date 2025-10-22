@@ -1,5 +1,5 @@
-import { useRouter } from '#app'
-import type { RouteRecordNormalized } from 'vue-router'
+import { useRouter } from '#app';
+import type { RouteRecordNormalized } from 'vue-router';
 
 /**
  * A composable that provides a filtered and sorted list of navigation routes.
@@ -57,15 +57,15 @@ import type { RouteRecordNormalized } from 'vue-router'
  * - Sorts routes using `meta.order` (default: 999)
  */
 export const useNavRoutes = (): ComputedRef<RouteRecordNormalized[]> => {
-  const router = useRouter()
+  const router = useRouter();
 
   const routes = computed(() =>
     router
       .getRoutes()
       // Only top-level pages (e.g., "/", "/about")
       .filter((r) => {
-        const segments = r.path.split('/').filter(Boolean)
-        return segments.length <= 1
+        const segments = r.path.split('/').filter(Boolean);
+        return segments.length <= 1;
       })
       // Skip dynamic and underscore routes
       .filter((r) => !r.path.includes(':') && !r.path.includes('/_'))
@@ -73,7 +73,7 @@ export const useNavRoutes = (): ComputedRef<RouteRecordNormalized[]> => {
       .filter((r) => !r.meta?.hidden)
       // Sort by meta.order (default 999)
       .sort((a, b) => (a.meta.order ?? 999) - (b.meta.order ?? 999))
-  )
+  );
 
-  return routes
-}
+  return routes;
+};

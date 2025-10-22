@@ -6,17 +6,33 @@
 // const lang = computed(() => locales[locale.value].code)
 // const dir = computed(() => locales[locale.value].dir)
 
+const colorMode = useColorMode();
+
+const isDark = computed({
+  get() {
+    return colorMode.value === 'dark';
+  },
+  set(_isDark) {
+    colorMode.preference = _isDark ? 'dark' : 'light';
+  },
+});
+
 useHead({
   // htmlAttrs: {
   //   lang,
   //   dir,
   // },
-  title: 'Thomi Syauqi',
-})
+  meta: [
+    {
+      name: 'theme-color',
+      content: isDark.value ? '#0f172b' : '#ffffff',
+    },
+  ],
+});
 </script>
 
 <template>
-  <NuxtLoadingIndicator />
+  <NuxtLoadingIndicator color="#14b8a6" />
 
   <UApp>
     <div class="flex min-h-dvh flex-col">

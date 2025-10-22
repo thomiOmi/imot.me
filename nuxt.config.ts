@@ -13,8 +13,31 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     // '@nuxtjs/i18n',
   ],
+  routeRules: {
+    '/': { prerender: true },
+  },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
+    head: {
+      titleTemplate: '%s %separator %siteName',
+      templateParams: {
+        separator: '·',
+        siteName: 'Thomi Syauqi',
+      },
+      meta: [
+        {
+          name: 'description',
+          content: 'My personal website',
+        },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+      ],
+    },
   },
   css: ['~/assets/css/main.css'],
   fonts: {
@@ -32,8 +55,18 @@ export default defineNuxtConfig({
       },
     ],
   },
+  vue: {
+    compilerOptions: {
+      isCustomElement: (tag) => tag === 'iconify-icon',
+    },
+  },
   ui: {
     fonts: false,
+  },
+  icon: {
+    serverBundle: {
+      collections: ['lucide'],
+    },
   },
   // i18n: {
   //   defaultLocale: 'en',
@@ -50,4 +83,4 @@ export default defineNuxtConfig({
   //     redirectOn: 'root',
   //   },
   // },
-})
+});

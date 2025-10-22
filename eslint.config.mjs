@@ -1,6 +1,6 @@
 // @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs'
-import { defineFlatConfig } from 'eslint-flat-config-utils'
+import withNuxt from './.nuxt/eslint.config.mjs';
+import { defineFlatConfig } from 'eslint-flat-config-utils';
 
 export default withNuxt(
   defineFlatConfig({
@@ -12,4 +12,4 @@ export default withNuxt(
       'prettier/prettier': 'error',
     },
   })
-)
+);

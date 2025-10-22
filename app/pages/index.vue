@@ -4,7 +4,7 @@ definePageMeta({
   order: 1,
   icon: 'lucide:house',
   name: 'home',
-})
+});
 </script>
 
 <template>

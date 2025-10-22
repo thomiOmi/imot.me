@@ -2,7 +2,7 @@
 definePageMeta({
   order: 4,
   icon: 'lucide:flask-conical',
-})
+});
 </script>
 
 <template>

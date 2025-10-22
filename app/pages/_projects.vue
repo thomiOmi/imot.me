@@ -2,7 +2,7 @@
 definePageMeta({
   order: 3,
   icon: 'lucide:folder',
-})
+});
 </script>
 
 <template>

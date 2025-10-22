@@ -7,6 +7,8 @@
       alt="Thomi Syauqi"
       class="border-muted ring-muted size-12 rounded-full border ring-2 transition-all duration-300 hover:ring-4 sm:size-16"
       sizes="48px sm:64px"
+      width="64"
+      height="64"
       placeholder
       format="webp"
     />

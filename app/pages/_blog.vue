@@ -2,7 +2,7 @@
 definePageMeta({
   order: 2,
   icon: 'lucide:newspaper',
-})
+});
 </script>
 
 <template>

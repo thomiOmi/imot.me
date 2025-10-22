@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { titleCase } from 'scule'
+import { titleCase } from 'scule';
 
-const navRoutes = useNavRoutes()
+const navRoutes = useNavRoutes();
 </script>
 
 <template>
