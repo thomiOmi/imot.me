@@ -1,0 +1,32 @@
+version: 2
+
+updates:
+  - package-ecosystem: bun
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 5
+    groups:
+      bun-minor-patch:
+        update-types:
+          - minor
+          - patch
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: typescript
+        versions:
+          - "7.x"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"  
