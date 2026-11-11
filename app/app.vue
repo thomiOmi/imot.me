@@ -6,16 +6,16 @@
 // const lang = computed(() => locales[locale.value].code)
 // const dir = computed(() => locales[locale.value].dir)
 
-const colorMode = useColorMode();
+const colorMode = useColorMode()
 
 const isDark = computed({
   get() {
-    return colorMode.value === 'dark';
+    return colorMode.value === 'dark'
   },
   set(_isDark) {
-    colorMode.preference = _isDark ? 'dark' : 'light';
+    colorMode.preference = _isDark ? 'dark' : 'light'
   },
-});
+})
 
 useHead({
   // htmlAttrs: {
@@ -28,7 +28,7 @@ useHead({
       content: isDark.value ? '#0f172b' : '#ffffff',
     },
   ],
-});
+})
 </script>
 
 <template>
@@ -37,7 +37,12 @@ useHead({
   <UApp>
     <SkyBg />
 
-    <UContainer class="bg-default border-default relative flex min-h-dvh flex-col sm:border-x">
+    <UContainer
+      class="
+  relative flex min-h-dvh flex-col border-default bg-default
+  sm:border-x
+"
+    >
       <AppNavbar />
 
       <NuxtPage />

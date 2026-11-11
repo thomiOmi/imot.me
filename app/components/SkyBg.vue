@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { kebabCase } from 'scule';
+import { kebabCase } from 'scule'
 
 interface Star {
-  x: number;
-  y: number;
-  size: number;
-  twinkleDelay: number;
-  id: string;
+  x: number
+  y: number
+  size: number
+  twinkleDelay: number
+  id: string
 }
 
 const props = withDefaults(
   defineProps<{
-    starCount?: number;
-    color?: string;
-    size?: { min: number; max: number };
-    speed?: 'slow' | 'normal' | 'fast';
+    starCount?: number
+    color?: string
+    size?: { min: number, max: number }
+    speed?: 'slow' | 'normal' | 'fast'
   }>(),
   {
     starCount: 50,
@@ -24,25 +24,25 @@ const props = withDefaults(
       max: 3,
     }),
     speed: 'normal',
-  }
-);
+  },
+)
 
-const route = useRoute();
+const route = useRoute()
 
 // Generate random stars
 const generateStars = (count: number): Star[] => {
   return Array.from({ length: count }, () => {
-    const x = Math.floor(Math.random() * 100);
-    const y = Math.floor(Math.random() * 100);
-    const size = Math.random() * (props.size.max - props.size.min) + props.size.min;
-    const twinkleDelay = Math.random() * 5;
+    const x = Math.floor(Math.random() * 100)
+    const y = Math.floor(Math.random() * 100)
+    const size = Math.random() * (props.size.max - props.size.min) + props.size.min
+    const twinkleDelay = Math.random() * 5
 
-    return { x, y, size, twinkleDelay, id: Math.random().toString(36).substring(2, 9) };
-  });
-};
+    return { x, y, size, twinkleDelay, id: Math.random().toString(36).substring(2, 9) }
+  })
+}
 
 // Generate all stars
-const stars = useState<Star[]>(`${kebabCase(route.path)}-sky`, () => generateStars(props.starCount));
+const stars = useState<Star[]>(`${kebabCase(route.path)}-sky`, () => generateStars(props.starCount))
 
 // Compute twinkle animation duration based on speed
 const twinkleDuration = computed(() => {
@@ -50,9 +50,9 @@ const twinkleDuration = computed(() => {
     slow: '4s',
     normal: '2s',
     fast: '1s',
-  };
-  return speedMap[props.speed];
-});
+  }
+  return speedMap[props.speed]
+})
 </script>
 
 <template>
@@ -60,31 +60,28 @@ const twinkleDuration = computed(() => {
     <div
       v-for="star in stars"
       :key="star.id"
-      class="star absolute"
+      :class="['absolute']"
       :style="{
-        left: `${star.x}%`,
-        top: `${star.y}%`,
-        transform: 'translate(-50%, -50%)',
+        'left': `${star.x}%`,
+        'top': `${star.y}%`,
+        'transform': 'translate(-50%, -50%)',
         '--star-size': `${star.size}px`,
         '--star-color': color,
         '--twinkle-delay': `${star.twinkleDelay}s`,
         '--twinkle-duration': twinkleDuration,
+        'width': `${star.size}px`,
+        'height': `${star.size}px`,
+        'background-color': color,
+        'border-radius': '50%',
+        'animation': 'twinkle var(--twinkle-duration) ease-in-out infinite',
+        'animation-delay': 'var(--twinkle-delay)',
+        'will-change': 'opacity',
       }"
     />
   </div>
 </template>
 
 <style scoped>
-.star {
-  width: var(--star-size);
-  height: var(--star-size);
-  background-color: var(--star-color);
-  border-radius: 50%;
-  animation: twinkle var(--twinkle-duration) ease-in-out infinite;
-  animation-delay: var(--twinkle-delay);
-  will-change: opacity;
-}
-
 @keyframes twinkle {
   0%,
   100% {
