@@ -1,7 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
 
   modules: [
     '@nuxt/image',
@@ -13,12 +11,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     // '@nuxtjs/i18n',
   ],
-  nitro: {
-    prerender: {
-      routes: ['/'],
-      crawlLinks: true,
-    },
-  },
+  devtools: { enabled: true },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
@@ -44,6 +37,25 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+  ui: {
+    fonts: false,
+  },
+  compatibilityDate: '2025-07-15',
+  nitro: {
+    prerender: {
+      routes: ['/'],
+      crawlLinks: true,
+    },
+  },
+  eslint: {
+    config: {
+      stylistic: true,
+      formatters: true,
+      typescript: {
+        tsconfigPath: './tsconfig.json',
+      },
+    },
+  },
   fonts: {
     defaults: {
       weights: ['100 900'],
@@ -58,9 +70,6 @@ export default defineNuxtConfig({
         provider: 'google',
       },
     ],
-  },
-  ui: {
-    fonts: false,
   },
   icon: {
     serverBundle: {
@@ -82,4 +91,4 @@ export default defineNuxtConfig({
   //     redirectOn: 'root',
   //   },
   // },
-});
+})

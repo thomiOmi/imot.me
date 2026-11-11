@@ -1,15 +1,20 @@
 // @ts-check
-import withNuxt from './.nuxt/eslint.config.mjs';
-import { defineFlatConfig } from 'eslint-flat-config-utils';
+import betterTailwindcss from 'eslint-plugin-better-tailwindcss'
+import { getDefaultAttributes } from 'eslint-plugin-better-tailwindcss/api/defaults'
+import withNuxt from './.nuxt/eslint.config.mjs'
 
-export default withNuxt(
-  defineFlatConfig({
-    plugins: {
-      prettier: require('eslint-plugin-prettier'),
+export default withNuxt()
+  .append(
+    betterTailwindcss.configs['correctness-error'],
+    {
+      settings: {
+        'better-tailwindcss': {
+          entryPoint: 'app/assets/css/main.css',
+          attributes: [
+            ...getDefaultAttributes(),
+            ['^(v-bind:|:)?ui$', [{ match: 'objectValues' }]],
+          ],
+        },
+      },
     },
-    extends: ['plugin:prettier/recommended'],
-    rules: {
-      'prettier/prettier': 'error',
-    },
-  })
-);
+  )
