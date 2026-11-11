@@ -12,7 +12,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": ["vue", "javascript", "typescript", "json", "yaml", "markdown"],
+  "eslint.validate": ["vue", "javascript", "typescript", "json", "jsonc", "yaml", "markdown"],
   "eslint.format.enable": true,
   "tailwindCSS.classAttributes": ["class", "ui"],
   "tailwindCSS.experimental.classRegex": [["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]]
