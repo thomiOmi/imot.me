@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { kebabCase } from 'scule'
-
 interface Star {
   id: string
   x: number
@@ -10,6 +8,12 @@ interface Star {
   twinkleDelay: number
   durationMultiplier: number
 }
+
+const TWINKLE_DURATION_SECONDS = {
+  slow: 4,
+  normal: 2,
+  fast: 1,
+} as const
 
 const props = withDefaults(
   defineProps<{
@@ -33,8 +37,6 @@ const props = withDefaults(
   },
 )
 
-const route = useRoute()
-const instanceId = useId()
 const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
 // VueUse parallax (handles mouse + mobile gyroscope safely with SSR)
@@ -73,9 +75,9 @@ const generateStars = (count: number): Star[] => {
   })
 }
 
-// Unique SSR-safe state key per route and component instance
-const stateKey = computed(() => `${kebabCase(route.path)}-sky-${instanceId}`)
-const stars = useState<Star[]>(stateKey.value, () => generateStars(props.starCount))
+// Stars are random, so share the server-generated layout through Nuxt state to
+// keep the client hydration deterministic.
+const stars = useState<Star[]>('sky-bg-stars', () => generateStars(props.starCount))
 
 // Regenerate stars if count or size bounds change dynamically at runtime
 watch(
@@ -85,20 +87,7 @@ watch(
   },
 )
 
-// Clean up Nuxt state when component unmounts
-onUnmounted(() => {
-  clearNuxtState(stateKey.value)
-})
-
-// Base twinkle duration in seconds
-const baseDuration = computed(() => {
-  const speedMap: Record<'slow' | 'normal' | 'fast', number> = {
-    slow: 4,
-    normal: 2,
-    fast: 1,
-  }
-  return speedMap[props.speed]
-})
+const baseDuration = computed(() => TWINKLE_DURATION_SECONDS[props.speed])
 </script>
 
 <template>
@@ -133,7 +122,6 @@ const baseDuration = computed(() => {
   width: var(--star-size);
   height: var(--star-size);
   background-color: var(--star-color);
-  will-change: opacity, transform;
   transform: translate3d(
     calc(-50% + (var(--parallax-x, 0px) * var(--star-depth))),
     calc(-50% + (var(--parallax-y, 0px) * var(--star-depth))),

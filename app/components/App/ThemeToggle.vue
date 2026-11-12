@@ -1,14 +1,18 @@
 <script setup lang="ts">
 const colorMode = useColorMode()
+const { t } = useI18n()
 
-const nextTheme = computed(() => (colorMode.value === 'dark' ? 'light' : 'dark'))
+const nextTheme = computed<'light' | 'dark'>(() => (colorMode.value === 'dark' ? 'light' : 'dark'))
+const themeLabel = computed(() => t(`theme.${nextTheme.value}`))
 
 const switchTheme = () => {
   colorMode.preference = nextTheme.value
 }
 
 const startViewTransition = (event: MouseEvent) => {
-  if (!('startViewTransition' in document)) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!('startViewTransition' in document) || prefersReducedMotion) {
     switchTheme()
     return
   }
@@ -22,25 +26,26 @@ const startViewTransition = (event: MouseEvent) => {
   })
 
   transition.ready.then(() => {
-    const duration = 600
     document.documentElement.animate(
       {
         clipPath: [`circle(0px at ${String(x)}px ${String(y)}px)`, `circle(${String(endRadius)}px at ${String(x)}px ${String(y)}px)`],
       },
       {
-        duration: duration,
+        duration: 600,
         easing: 'cubic-bezier(.76,.32,.29,.99)',
         pseudoElement: '::view-transition-new(root)',
       },
     )
-  }).catch(() => {})
+  }).catch(() => {
+    // The transition is skipped when it is interrupted by another toggle
+  })
 }
 </script>
 
 <template>
   <ClientOnly>
     <UButton
-      :aria-label="`Switch to ${nextTheme} mode`"
+      :aria-label="themeLabel"
       :icon="nextTheme === 'dark' ? 'lucide:sun' : 'lucide:moon'"
       color="neutral"
       variant="ghost"

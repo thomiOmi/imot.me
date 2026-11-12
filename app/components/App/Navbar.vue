@@ -3,27 +3,29 @@ import { titleCase } from 'scule'
 
 const navRoutes = useNavRoutes()
 const localePath = useLocalePath()
-const localeRoute = useLocaleRoute()
-const routeBaseName = useRouteBaseName()
 const route = useRoute()
+const i18n = useI18n()
 
 // @nuxtjs/i18n suffixes route names with `___<locale>`, which leaks into labels
-const navLabel = (routeName: unknown) =>
-  typeof routeName === 'string' ? titleCase(routeName.split('___')[0] ?? '') : ''
+const toBaseName = (routeName: unknown) =>
+  typeof routeName === 'string' ? routeName.split('___')[0] ?? '' : ''
+
+const navLabel = (routeName: unknown) => {
+  const baseName = toBaseName(routeName)
+  if (!baseName) return ''
+
+  const key = `nav.${baseName}`
+  return i18n.te(key) ? i18n.t(key) : titleCase(baseName)
+}
 
 // English is served from both `/` and `/en`, so compare base names instead of
 // raw paths to keep the active indicator correct on either URL
-const isActive = (path: string) => {
-  const target = localeRoute(path)
-  return !!target && routeBaseName(target) === routeBaseName(route)
-}
+const currentBaseName = computed(() => toBaseName(route.name))
+const isActive = (routeName: unknown) => toBaseName(routeName) === currentBaseName.value
 </script>
 
 <template>
-  <header
-    ref="headerRef"
-    class="fixed inset-s-0 top-0 z-50 w-full"
-  >
+  <header class="fixed inset-s-0 top-0 z-50 w-full">
     <UContainer as="nav">
       <ul
         class="
@@ -50,7 +52,7 @@ const isActive = (path: string) => {
                 hover:text-primary-500
                 dark:hover:text-primary-400
               "
-              :class="isActive(item.path) ? 'text-primary-600 dark:text-primary-400' : undefined"
+              :class="isActive(item.name) ? 'text-primary-600 dark:text-primary-400' : undefined"
             >
               <Icon
                 aria-hidden="true"
@@ -58,7 +60,7 @@ const isActive = (path: string) => {
                 class="z-10 size-5"
               />
               <span
-                v-if="isActive(item.path)"
+                v-if="isActive(item.name)"
                 class="
                   absolute inset-x-1 -bottom-px h-px bg-linear-to-r
                   from-primary-500/0 via-primary-500/70 to-primary-500/0

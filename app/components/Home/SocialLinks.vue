@@ -22,7 +22,7 @@ const links = [
         external
         class="
           group flex items-end gap-4
-          dark:hover:text-highlighted
+          hover:text-highlighted
         "
       >
         <span class="text-sm">
@@ -36,6 +36,7 @@ const links = [
         />
         <Icon
           :name="link.icon"
+          aria-hidden="true"
           class="size-5"
         />
       </NuxtLink>

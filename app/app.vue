@@ -1,21 +1,7 @@
 <script setup lang="ts">
-// import * as locales from '@nuxt/ui/locale'
-
-// const { locale } = useI18n()
-
-// const lang = computed(() => locales[locale.value].code)
-// const dir = computed(() => locales[locale.value].dir)
-
 const colorMode = useColorMode()
 
-const isDark = computed({
-  get() {
-    return colorMode.value === 'dark'
-  },
-  set(_isDark) {
-    colorMode.preference = _isDark ? 'dark' : 'light'
-  },
-})
+const isDark = computed(() => colorMode.value === 'dark')
 
 const i18nHead = useLocaleHead()
 
@@ -58,7 +44,9 @@ useHead(() => ({
 <style>
 .page-enter-active,
 .page-leave-active {
-  transition: all 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
 }
 
 .page-leave-to {

@@ -1,91 +1,46 @@
-import { useRouter } from '#app'
 import type { RouteRecordNormalized } from 'vue-router'
 
 /**
- * A composable that provides a filtered and sorted list of navigation routes.
+ * Provides the top-level routes that belong in the site navigation.
  *
- * @remarks
- * This composable is designed to work with Nuxt 3's file-based routing system.
- * It processes the router's route list to provide a clean set of navigation-ready routes.
+ * Localized routing registers one record per locale and, with
+ * `prefix_and_default`, both `/` and `/en` for the default locale. Records are
+ * therefore deduplicated by base name and the shortest path wins, so links keep
+ * pointing at the canonical unprefixed URL regardless of registration order.
  *
- * @returns {ComputedRef<RouteRecordNormalized[]>} A computed ref containing an array of route records
- * that are suitable for navigation menus.
+ * Nested, dynamic, private (path segment starting with `_`) and `meta.hidden`
+ * routes are excluded. The result is sorted by `meta.order` (default: 999).
  *
- * @example
- * Basic usage:
- * ```ts
- * const navRoutes = useNavRoutes()
- * ```
- *
- * @example
- * Using with v-for in a template:
- * ```vue
- * <template>
- *   <nav>
- *     <NuxtLink
- *       v-for="route in navRoutes"
- *       :key="route.path"
- *       :to="route.path"
- *     >
- *       {{ route.meta.title || route.name }}
- *     </NuxtLink>
- *   </nav>
- * </template>
- *
- * <script setup>
- * const navRoutes = useNavRoutes()
- * </script>
- * ```
- *
- * @example
- * Page meta configuration:
- * ```ts
- * // pages/about.vue
- * definePageMeta({
- *   title: 'About Us',      // Display name for the route
- *   icon: 'lucide:info',    // Icon to display in navigation
- *   order: 2,               // Sort order (lower numbers come first)
- *   hidden: false           // Set to true to exclude from navigation
- * })
- * ```
- *
- * @feature
- * - Filters out dynamic routes (e.g., `[slug].vue`)
- * - Excludes private routes (prefixed with `/_`)
- * - Keeps one route per page (deduplicates localized variants)
- * - Only includes top-level routes (e.g., `/`, `/about`)
- * - Respects `meta.hidden` flag to hide routes
- * - Sorts routes using `meta.order` (default: 999)
+ * @returns A computed list of routes ready to render a navigation menu.
  */
 export const useNavRoutes = (): ComputedRef<RouteRecordNormalized[]> => {
   const router = useRouter()
 
-  const routes = computed(() => {
-    const seen = new Set<string>()
+  return computed(() => {
+    const routesByBaseName = new Map<string, RouteRecordNormalized>()
 
-    return router
-      .getRoutes()
-      // Only top-level pages (e.g. "/", "/about")
-      .filter((route) => {
-        const segments = route.path.split('/').filter(Boolean)
-        return segments.length <= 1
-      })
-      // Skip dynamic and underscore routes
-      .filter(route => !route.path.includes(':') && !route.path.includes('/_'))
-      // Localized strategies register several paths for the same page (e.g. `/`
-      // and `/en`), so keep only the first route per base name
-      .filter((route) => {
-        if (typeof route.name !== 'string') return true
-        const baseName = route.name.split('___')[0] ?? route.name
-        if (seen.has(baseName)) return false
-        seen.add(baseName)
-        return true
-      })
-      // Skip hidden routes
-      .filter(route => !route.meta.hidden)
-      // Sort by meta.order (default 999)
-      .sort((a, b) => (a.meta.order ?? 999) - (b.meta.order ?? 999))
+    for (const route of router.getRoutes()) {
+      const segments = route.path.split('/').filter(Boolean)
+      const isTopLevel = segments.length <= 1
+      const isPrivate = segments[0]?.startsWith('_') ?? false
+      const isDynamic = route.path.includes(':')
+
+      if (!isTopLevel || isPrivate || isDynamic || route.meta.hidden) {
+        continue
+      }
+
+      const baseName = typeof route.name === 'string'
+        ? route.name.split('___')[0] ?? route.path
+        : route.path
+      const registeredRoute = routesByBaseName.get(baseName)
+
+      if (!registeredRoute || route.path.length < registeredRoute.path.length) {
+        routesByBaseName.set(baseName, route)
+      }
+    }
+
+    return [...routesByBaseName.values()].sort(
+      (firstRoute, secondRoute) => (firstRoute.meta.order ?? 999) - (secondRoute.meta.order ?? 999),
+    )
   })
-
-  return routes
 }
