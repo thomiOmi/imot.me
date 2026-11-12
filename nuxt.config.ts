@@ -1,4 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+// `@types/node` is not installed, so declare only the Node API used here.
+declare const process: { env: Record<string, string | undefined> }
+
+// Prerendered SEO tags (canonical/hreflang) are baked into the HTML at build
+// time, so the canonical URL must be resolved during the build, not at runtime.
+// Precedence: explicit override -> Vercel production domain -> local fallback.
+const vercelProductionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL
+const siteUrl = (
+  process.env.NUXT_PUBLIC_I18N_BASE_URL
+  || (vercelProductionHost ? `https://${vercelProductionHost}` : '')
+  || 'http://localhost:3000'
+).replace(/\/+$/, '')
+
 export default defineNuxtConfig({
 
   modules: [
@@ -9,7 +23,7 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@nuxtjs/color-mode',
     '@vueuse/nuxt',
-    // '@nuxtjs/i18n',
+    '@nuxtjs/i18n',
   ],
   devtools: { enabled: true },
   app: {
@@ -19,9 +33,6 @@ export default defineNuxtConfig({
       templateParams: {
         separator: '·',
         siteName: 'Thomi Syauqi',
-      },
-      htmlAttrs: {
-        lang: 'en',
       },
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -43,7 +54,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   nitro: {
     prerender: {
-      routes: ['/'],
+      routes: ['/', '/en', '/id'],
       crawlLinks: true,
     },
   },
@@ -71,24 +82,25 @@ export default defineNuxtConfig({
       },
     ],
   },
+  i18n: {
+    baseUrl: siteUrl,
+    defaultLocale: 'en',
+    strategy: 'prefix_and_default',
+    restructureDir: 'app',
+    langDir: 'locales',
+    locales: [
+      { code: 'en', language: 'en-US', file: 'en.json' },
+      { code: 'id', language: 'id-ID', file: 'id.json' },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    },
+  },
   icon: {
     serverBundle: {
       collections: ['lucide'],
     },
   },
-  // i18n: {
-  //   defaultLocale: 'en',
-  //   strategy: 'prefix_except_default',
-
-  //   locales: [
-  //     { code: 'en', name: 'English', file: 'en.json' },
-  //     { code: 'id', name: 'Bahasa Indonesia', file: 'id.json' },
-  //   ],
-
-  //   detectBrowserLanguage: {
-  //     useCookie: true,
-  //     cookieKey: 'i18n_redirected',
-  //     redirectOn: 'root',
-  //   },
-  // },
 })

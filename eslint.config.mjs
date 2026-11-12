@@ -16,5 +16,9 @@ export default withNuxt()
           ],
         },
       },
+      rules: {
+        // `star` is a scoped class defined in SkyBg.vue, not a Tailwind utility
+        'better-tailwindcss/no-unknown-classes': ['error', { ignore: ['^star$'] }],
+      },
     },
   )

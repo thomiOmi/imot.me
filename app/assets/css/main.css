@@ -8,16 +8,14 @@
 
 :root {
   --ui-container: var(--container-2xl);
-
-  ::selection {
-    color: #282a30;
-    background-color: #c8c8c8;
-  }
 }
 
-.dark {
-  ::selection {
-    color: #ffffff;
-    background-color: #474747;
-  }
+::selection {
+  color: #282a30;
+  background-color: #c8c8c8;
+}
+
+.dark ::selection {
+  color: #ffffff;
+  background-color: #474747;
 }

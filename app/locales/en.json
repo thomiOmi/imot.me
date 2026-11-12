@@ -1,0 +1,25 @@
+{
+  "nav": {
+    "home": "Home",
+    "language": "Language"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  },
+  "theme": {
+    "light": "Switch to light mode",
+    "dark": "Switch to dark mode"
+  },
+  "home": {
+    "meta": {
+      "title": "Home"
+    },
+    "hero": {
+      "title": "Hi! I'm Thomi Syauqi",
+      "description": "I'm a Frontend Developer focused on performance, accessibility, and detail-oriented design. Experienced in building modern interfaces with the latest web technologies to help businesses and developer teams create seamless user experiences across devices."
+    },
+    "social": {
+      "title": "Find Me on"
+    }
+  }
+}
