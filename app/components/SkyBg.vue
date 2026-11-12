@@ -2,11 +2,13 @@
 import { kebabCase } from 'scule'
 
 interface Star {
+  id: string
   x: number
   y: number
   size: number
+  depth: number
   twinkleDelay: number
-  id: string
+  durationMultiplier: number
 }
 
 const props = withDefaults(
@@ -15,6 +17,8 @@ const props = withDefaults(
     color?: string
     size?: { min: number, max: number }
     speed?: 'slow' | 'normal' | 'fast'
+    parallax?: boolean
+    parallaxStrength?: number
   }>(),
   {
     starCount: 50,
@@ -24,64 +28,121 @@ const props = withDefaults(
       max: 3,
     }),
     speed: 'normal',
+    parallax: true,
+    parallaxStrength: 20,
   },
 )
 
 const route = useRoute()
+const instanceId = useId()
+const containerRef = useTemplateRef<HTMLElement>('containerRef')
 
-// Generate random stars
+// VueUse parallax (handles mouse + mobile gyroscope safely with SSR)
+const { tilt, roll } = useParallax(containerRef)
+
+// Normalize VueUse's -0.5..0.5 range to -1..1 and apply strength in pixels
+const parallaxOffset = computed(() => {
+  if (!props.parallax) {
+    return { x: '0px', y: '0px' }
+  }
+
+  return {
+    x: `${String(tilt.value * 2 * props.parallaxStrength)}px`,
+    y: `${String(roll.value * 2 * props.parallaxStrength)}px`,
+  }
+})
+
+// Generate random stars with size-based depth layering
 const generateStars = (count: number): Star[] => {
-  return Array.from({ length: count }, () => {
-    const x = Math.floor(Math.random() * 100)
-    const y = Math.floor(Math.random() * 100)
-    const size = Math.random() * (props.size.max - props.size.min) + props.size.min
-    const twinkleDelay = Math.random() * 5
+  const sizeRange = props.size.max - props.size.min || 1
 
-    return { x, y, size, twinkleDelay, id: Math.random().toString(36).substring(2, 9) }
+  return Array.from({ length: count }, (_, index) => {
+    const size = Math.random() * (props.size.max - props.size.min) + props.size.min
+    const normalizedSize = (size - props.size.min) / sizeRange
+
+    return {
+      id: `star-${String(index)}`,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size,
+      // Larger stars appear closer (depth 0.2 to 1.0) and move faster
+      depth: Number((0.2 + normalizedSize * 0.8).toFixed(2)),
+      twinkleDelay: Number((Math.random() * 5).toFixed(2)),
+      durationMultiplier: Number((0.8 + Math.random() * 0.5).toFixed(2)),
+    }
   })
 }
 
-// Generate all stars
-const stars = useState<Star[]>(`${kebabCase(route.path)}-sky`, () => generateStars(props.starCount))
+// Unique SSR-safe state key per route and component instance
+const stateKey = computed(() => `${kebabCase(route.path)}-sky-${instanceId}`)
+const stars = useState<Star[]>(stateKey.value, () => generateStars(props.starCount))
 
-// Compute twinkle animation duration based on speed
-const twinkleDuration = computed(() => {
-  const speedMap: Record<string, string> = {
-    slow: '4s',
-    normal: '2s',
-    fast: '1s',
+// Regenerate stars if count or size bounds change dynamically at runtime
+watch(
+  () => [props.starCount, props.size.min, props.size.max],
+  () => {
+    stars.value = generateStars(props.starCount)
+  },
+)
+
+// Clean up Nuxt state when component unmounts
+onUnmounted(() => {
+  clearNuxtState(stateKey.value)
+})
+
+// Base twinkle duration in seconds
+const baseDuration = computed(() => {
+  const speedMap: Record<'slow' | 'normal' | 'fast', number> = {
+    slow: 4,
+    normal: 2,
+    fast: 1,
   }
   return speedMap[props.speed]
 })
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-0 z-[-1] overflow-hidden">
+  <div
+    ref="containerRef"
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    :style="{
+      '--parallax-x': parallaxOffset.x,
+      '--parallax-y': parallaxOffset.y,
+    }"
+  >
     <div
       v-for="star in stars"
       :key="star.id"
-      :class="['absolute']"
+      class="star absolute rounded-full"
       :style="{
         'left': `${star.x}%`,
         'top': `${star.y}%`,
-        'transform': 'translate(-50%, -50%)',
         '--star-size': `${star.size}px`,
         '--star-color': color,
+        '--star-depth': star.depth,
         '--twinkle-delay': `${star.twinkleDelay}s`,
-        '--twinkle-duration': twinkleDuration,
-        'width': `${star.size}px`,
-        'height': `${star.size}px`,
-        'background-color': color,
-        'border-radius': '50%',
-        'animation': 'twinkle var(--twinkle-duration) ease-in-out infinite',
-        'animation-delay': 'var(--twinkle-delay)',
-        'will-change': 'opacity',
+        '--twinkle-duration': `${(baseDuration * star.durationMultiplier).toFixed(2)}s`,
       }"
     />
   </div>
 </template>
 
 <style scoped>
+.star {
+  width: var(--star-size);
+  height: var(--star-size);
+  background-color: var(--star-color);
+  will-change: opacity, transform;
+  transform: translate3d(
+    calc(-50% + (var(--parallax-x, 0px) * var(--star-depth))),
+    calc(-50% + (var(--parallax-y, 0px) * var(--star-depth))),
+    0
+  );
+  transition: transform 0.15s ease-out;
+  animation: twinkle var(--twinkle-duration) ease-in-out var(--twinkle-delay) infinite;
+}
+
 @keyframes twinkle {
   0%,
   100% {
@@ -89,6 +150,15 @@ const twinkleDuration = computed(() => {
   }
   50% {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star {
+    animation: none;
+    transition: none;
+    transform: translate(-50%, -50%);
+    opacity: 0.6;
   }
 }
 </style>
