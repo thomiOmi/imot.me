@@ -18,12 +18,10 @@
       format="webp"
     />
     <h1 class="text-xl font-bold tracking-tight text-default">
-      Hai! Saya Thomi Syauqi
+      {{ $t('home.hero.title') }}
     </h1>
     <p class="text-muted">
-      Saya adalah Frontend Developer yang berfokus pada performa, aksesibilitas, dan desain yang detail. Berpengalaman
-      membangun antarmuka modern menggunakan teknologi web terbaru untuk membantu bisnis dan tim developer menciptakan
-      pengalaman pengguna yang mulus di berbagai perangkat.
+      {{ $t('home.hero.description') }}
     </p>
   </div>
 </template>

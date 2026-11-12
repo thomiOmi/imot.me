@@ -52,6 +52,7 @@ import type { RouteRecordNormalized } from 'vue-router'
  * @feature
  * - Filters out dynamic routes (e.g., `[slug].vue`)
  * - Excludes private routes (prefixed with `/_`)
+ * - Keeps one route per page (deduplicates localized variants)
  * - Only includes top-level routes (e.g., `/`, `/about`)
  * - Respects `meta.hidden` flag to hide routes
  * - Sorts routes using `meta.order` (default: 999)
@@ -59,21 +60,32 @@ import type { RouteRecordNormalized } from 'vue-router'
 export const useNavRoutes = (): ComputedRef<RouteRecordNormalized[]> => {
   const router = useRouter()
 
-  const routes = computed(() =>
-    router
+  const routes = computed(() => {
+    const seen = new Set<string>()
+
+    return router
       .getRoutes()
-      // Only top-level pages (e.g., "/", "/about")
-      .filter((r) => {
-        const segments = r.path.split('/').filter(Boolean)
+      // Only top-level pages (e.g. "/", "/about")
+      .filter((route) => {
+        const segments = route.path.split('/').filter(Boolean)
         return segments.length <= 1
       })
       // Skip dynamic and underscore routes
-      .filter(r => !r.path.includes(':') && !r.path.includes('/_'))
+      .filter(route => !route.path.includes(':') && !route.path.includes('/_'))
+      // Localized strategies register several paths for the same page (e.g. `/`
+      // and `/en`), so keep only the first route per base name
+      .filter((route) => {
+        if (typeof route.name !== 'string') return true
+        const baseName = route.name.split('___')[0] ?? route.name
+        if (seen.has(baseName)) return false
+        seen.add(baseName)
+        return true
+      })
       // Skip hidden routes
-      .filter(r => !r.meta.hidden)
+      .filter(route => !route.meta.hidden)
       // Sort by meta.order (default 999)
-      .sort((a, b) => (a.meta.order ?? 999) - (b.meta.order ?? 999)),
-  )
+      .sort((a, b) => (a.meta.order ?? 999) - (b.meta.order ?? 999))
+  })
 
   return routes
 }

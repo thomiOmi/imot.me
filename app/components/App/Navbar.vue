@@ -2,6 +2,21 @@
 import { titleCase } from 'scule'
 
 const navRoutes = useNavRoutes()
+const localePath = useLocalePath()
+const localeRoute = useLocaleRoute()
+const routeBaseName = useRouteBaseName()
+const route = useRoute()
+
+// @nuxtjs/i18n suffixes route names with `___<locale>`, which leaks into labels
+const navLabel = (routeName: unknown) =>
+  typeof routeName === 'string' ? titleCase(routeName.split('___')[0] ?? '') : ''
+
+// English is served from both `/` and `/en`, so compare base names instead of
+// raw paths to keep the active indicator correct on either URL
+const isActive = (path: string) => {
+  const target = localeRoute(path)
+  return !!target && routeBaseName(target) === routeBaseName(route)
+}
 </script>
 
 <template>
@@ -23,19 +38,19 @@ const navRoutes = useNavRoutes()
           :key="item.path"
         >
           <UTooltip
-            :text="titleCase(item.name as string)"
+            :text="navLabel(item.name)"
             :content="{
               positionStrategy: 'absolute',
             }"
           >
             <ULink
-              :to="item.path"
+              :to="localePath(item.path)"
               class="
                 relative flex items-center justify-center px-3 py-4 transition
                 hover:text-primary-500
                 dark:hover:text-primary-400
               "
-              active-class="text-primary-600 dark:text-primary-400"
+              :class="isActive(item.path) ? 'text-primary-600 dark:text-primary-400' : undefined"
             >
               <Icon
                 aria-hidden="true"
@@ -43,7 +58,7 @@ const navRoutes = useNavRoutes()
                 class="z-10 size-5"
               />
               <span
-                v-if="$route.path === item.path"
+                v-if="isActive(item.path)"
                 class="
                   absolute inset-x-1 -bottom-px h-px bg-linear-to-r
                   from-primary-500/0 via-primary-500/70 to-primary-500/0
@@ -51,19 +66,14 @@ const navRoutes = useNavRoutes()
                   dark:to-primary-400/0
                 "
               />
-              <span
-                v-if="$route.path === item.path"
-                class="
-                  absolute top-1/2 left-1/2 z-0 size-8 -translate-1/2
-                  rounded-full bg-neutral-100
-                  dark:bg-white/10
-                "
-              />
-              <span class="sr-only">{{ titleCase(item.name as string) }}</span>
+              <span class="sr-only">{{ navLabel(item.name) }}</span>
             </ULink>
           </UTooltip>
         </li>
         <li class="flex-1" />
+        <li>
+          <AppLanguageSwitcher />
+        </li>
         <li>
           <AppThemeToggle />
         </li>

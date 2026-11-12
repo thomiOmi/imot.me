@@ -11,7 +11,7 @@ const links = [
 <template>
   <div>
     <h2 class="mb-4 text-xs font-semibold text-toned uppercase">
-      Find Me on
+      {{ $t('home.social.title') }}
     </h2>
     <div class="space-y-5">
       <NuxtLink
@@ -30,9 +30,9 @@ const links = [
         </span>
         <div
           class="
-  flex-1 border-b border-dashed border-muted transition-colors
-  group-hover:border-inverted
-"
+            flex-1 border-b border-dashed border-muted transition-colors
+            group-hover:border-inverted
+          "
         />
         <Icon
           :name="link.icon"
